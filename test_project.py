@@ -65,7 +65,8 @@ class TestHabitTracker(unittest.TestCase):
         self.tracker.complete_habit("Lesen", date=yesterday)
         self.assertEqual(len(habit.completions), 1)
         self.assertEqual(habit.completions[0].date(), yesterday.date())
-        self.assertEqual(habit.get_current_streak(), 0)  # Gestern abgeschlossen, heute nicht
+        # Aktuelle Streak ist 0, da heute nicht abgeschlossen wurde (wenn gestern letzter Abschluss war)
+        self.assertEqual(habit.get_current_streak(), 0)
 
         # Abschluss für heute
         today = datetime.now()
@@ -86,14 +87,15 @@ class TestHabitTracker(unittest.TestCase):
         habit = self.tracker.get_habit_by_name("Wöchentliche Meditation")
 
         # Abschluss für letzte Woche
-        last_week = datetime.now() - timedelta(weeks=1, days=3)  # Mittwoch letzte Woche
-        self.tracker.complete_habit("Wöchentliche Meditation", date=last_week)
+        last_week_completion_date = datetime.now() - timedelta(weeks=1, days=3)  # Mittwoch letzte Woche
+        self.tracker.complete_habit("Wöchentliche Meditation", date=last_week_completion_date)
         self.assertEqual(len(habit.completions), 1)
-        self.assertEqual(habit.get_current_streak(), 0)  # Letzte Woche abgeschlossen, diese Woche nicht
+        # Erwartet 0, da der letzte Abschluss in der VORHERIGEN Woche war und die aktuelle Woche nicht abgeschlossen ist.
+        self.assertEqual(habit.get_current_streak(), 0)
 
         # Abschluss für diese Woche
-        this_week = datetime.now() - timedelta(days=1)  # Gestern
-        self.tracker.complete_habit("Wöchentliche Meditation", date=this_week)
+        this_week_completion_date = datetime.now() - timedelta(days=1)  # Gestern
+        self.tracker.complete_habit("Wöchentliche Meditation", date=this_week_completion_date)
         self.assertEqual(len(habit.completions), 2)
         self.assertEqual(habit.get_current_streak(), 2)  # Letzte und diese Woche abgeschlossen
 
@@ -165,23 +167,26 @@ class TestHabitTracker(unittest.TestCase):
         self.tracker.add_habit("Tägliche Übung", "...", "daily")
         habit = self.tracker.get_habit_by_name("Tägliche Übung")
 
-        # Simuliere eine Streak von 3 Tagen
-        self.tracker.complete_habit("Tägliche Übung", date=datetime.now() - timedelta(days=3))
-        self.tracker.complete_habit("Tägliche Übung", date=datetime.now() - timedelta(days=2))
-        self.tracker.complete_habit("Tägliche Übung", date=datetime.now() - timedelta(days=1))
+        # Simuliere eine Streak von 3 Tagen (z.B. vor 3, 2, 1 Tagen)
+        for i in range(3):
+            self.tracker.complete_habit("Tägliche Übung", date=datetime.now() - timedelta(days=2 - i))
         self.assertEqual(habit.get_longest_streak(), 3)
 
-        # Simuliere eine Unterbrechung und eine neue, längere Streak
-        self.tracker.complete_habit("Tägliche Übung", date=datetime.now() - timedelta(days=0, hours=2))  # Heute früh
-        self.tracker.complete_habit("Tägliche Übung", date=datetime.now() - timedelta(days=-1))  # Morgen
-        self.tracker.complete_habit("Tägliche Übung", date=datetime.now() - timedelta(days=-2))  # Übermorgen
-        self.assertEqual(habit.get_longest_streak(), 3)  # Die längste Streak ist immer noch 3
+        # Simuliere eine Unterbrechung und eine neue, kürzere Streak
+        # (WICHTIG: Verwende hier keine zukünftigen Daten, um die längste Streak nicht zu verfälschen)
+        # Setze die Abschlüsse zurück und füge eine längere Streak hinzu
+        habit.completions = []
+        for i in range(5):  # Eine Streak von 5 Tagen
+            self.tracker.complete_habit("Tägliche Übung", date=datetime.now() - timedelta(days=4 - i))
+        self.assertEqual(habit.get_longest_streak(), 5)  # Erwartet 5 für die neue längste Streak
 
-        # Test mit einer längeren Streak
-        habit.completions = []  # Reset completions
-        for i in range(5):
-            self.tracker.complete_habit("Tägliche Übung",
-                                        date=datetime.now() - timedelta(days=4 - i))  # 5 Tage in Folge
+        # Füge eine Lücke und dann eine kürzere, neue Streak hinzu, um zu prüfen, ob die längste erhalten bleibt
+        # Beispiel: Eine 2-Tages-Streak nach einer Lücke von 3 Tagen
+        gap_start_date = datetime.now() - timedelta(days=8)
+        self.tracker.complete_habit("Tägliche Übung", date=gap_start_date)
+        self.tracker.complete_habit("Tägliche Übung", date=gap_start_date + timedelta(days=1))
+
+        # Die längste Streak sollte immer noch 5 sein, von der vorherigen längeren Streak
         self.assertEqual(habit.get_longest_streak(), 5)
 
     def test_longest_streak_weekly(self):
@@ -214,30 +219,33 @@ class TestHabitTracker(unittest.TestCase):
         self.tracker.add_habit("Sprache lernen", "Täglich", "daily")
         self.tracker.add_habit("Projektarbeit", "Wöchentlich", "weekly")
 
-        # Yoga für die letzten 5 Tage abgeschlossen
-        for i in range(5):
-            self.tracker.complete_habit("Yoga", date=datetime.now() - timedelta(days=i))
+        # Yoga für die letzten 30 Tage abgeschlossen (um sicherzustellen, dass es NICHT struggling ist)
+        # Die range muss 30 Tage vorwärts gehen, da timedelta(days=i) rückwärts zählt.
+        # Start ist (heute - 29 Tage) bis (heute - 0 Tage).
+        for i in range(30):
+            self.tracker.complete_habit("Yoga", date=datetime.now() - timedelta(days=29 - i))
 
-        # Sprache lernen nur einmal abgeschlossen
-        self.tracker.complete_habit("Sprache lernen", date=datetime.now() - timedelta(days=10))
+        # Sprache lernen nur einmal abgeschlossen (sollte struggling sein)
+        self.tracker.complete_habit("Sprache lernen", date=datetime.now() - timedelta(days=25))
 
-        # Projektarbeit letzte Woche abgeschlossen
+        # Projektarbeit nur einmal letzte Woche abgeschlossen (sollte struggling sein, da viele Wochen verpasst wurden)
         self.tracker.complete_habit("Projektarbeit", date=datetime.now() - timedelta(weeks=1, days=2))
 
         struggling = self.tracker.get_struggling_habits(period_days=30)
-        struggling_names = [h for h in struggling]  # struggling_habits_data is list of habit names
+        # self.tracker.get_struggling_habits() gibt bereits eine Liste von Namen zurück
+        struggling_names = struggling
 
-        # Erwartung: "Sprache lernen" sollte am häufigsten verpasst werden, dann "Projektarbeit"
-        # Yoga sollte nicht auftauchen, da es regelmäßig gemacht wurde
+        # Erwartung: "Sprache lernen" und "Projektarbeit" sollten auftauchen
+        # "Yoga" sollte NICHT auftauchen, da es regelmäßig gemacht wurde
 
-        # Die genaue Anzahl der verpassten Tage/Wochen hängt vom aktuellen Datum und der Periodizität ab.
-        # Wir testen, ob die Reihenfolge der "struggling habits" korrekt ist.
-        self.assertGreater(struggling_names.index("Sprache lernen"), -1)
-        self.assertGreater(struggling_names.index("Projektarbeit"), -1)
-
-        # Stellen Sie sicher, dass "Yoga" nicht als "struggling habit" auftaucht (oder sehr weit hinten)
+        self.assertIn("Sprache lernen", struggling_names)
+        self.assertIn("Projektarbeit", struggling_names)
         self.assertNotIn("Yoga", struggling_names)
 
-
-if __name__ == '__main__':
-    unittest.main()
+        # Optional: Test with no struggling habits
+        self.tracker.habits = []  # Clear existing habits for new test
+        self.tracker.add_habit("Super Habit", "Daily", "daily")
+        for i in range(30):
+            self.tracker.complete_habit("Super Habit", date=datetime.now() - timedelta(days=29 - i))  # 30 Tage am Stück
+        no_struggling = self.tracker.get_struggling_habits(period_days=30)
+        self.assertEqual(len(no_struggling), 0)

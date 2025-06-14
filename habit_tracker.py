@@ -272,10 +272,8 @@ class HabitTracker:
         Returns:
             list[str]: Eine Liste der Namen der "struggling habits".
         """
-        struggling_habits_data = analytics.get_struggling_habits(self.habits, period_days)
-        # struggling_habits_data ist eine Liste von Tupeln (Habit, Anzahl_verpasster_Tage)
-        # Wir wollen nur die Namen der Habits zurückgeben
-        return [habit.name for habit, _ in struggling_habits_data]
+        # Korrektur: analytics.get_struggling_habits gibt jetzt bereits eine Liste von Namen zurück
+        return analytics.get_struggling_habits(self.habits, period_days)
 
 
     def save_to_file(self):
