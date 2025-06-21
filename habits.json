@@ -8,5 +8,41 @@
         "completions": [
             "2025-06-21T14:23:38.495155"
         ]
+    },
+    {
+        "name": "Screen Break",
+        "description": "30 Minutes without looking at the screen",
+        "periodicity": "daily",
+        "creation_date": "2025-06-21T14:44:28.503606",
+        "last_completed": null,
+        "completions": []
+    },
+    {
+        "name": "Breathing Exercise",
+        "description": "30 Minutes of mindful breathing",
+        "periodicity": "weekly",
+        "creation_date": "2025-06-21T14:46:54.731377",
+        "last_completed": "2025-06-21T14:47:26.095570",
+        "completions": [
+            "2025-06-21T14:47:26.095570"
+        ]
+    },
+    {
+        "name": "Yoga",
+        "description": "30 Minutes of Yoga",
+        "periodicity": "weekly",
+        "creation_date": "2025-06-21T14:48:26.384693",
+        "last_completed": "2025-06-21T14:48:33.977036",
+        "completions": [
+            "2025-06-21T14:48:33.977036"
+        ]
+    },
+    {
+        "name": "Journaling",
+        "description": "Writing what you have done on this day",
+        "periodicity": "daily",
+        "creation_date": "2025-06-21T14:52:45.663178",
+        "last_completed": null,
+        "completions": []
     }
 ]

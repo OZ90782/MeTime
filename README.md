@@ -1,24 +1,4 @@
 # MeTime
-A little description of the project
-
-## What it is
-
-bla
-
-## Instalation
-
-pip install -r requirements.txt
-
-## Usage
-
-Start
-python main.py
-
-## Test
-
-test_project
-
-# MeTime
 A simple yet functional habit tracker developed in Python, focusing on promoting regular breaks and relaxation exercises to support mental well-being and mindfulness in daily life.
 
 ## What it is
@@ -48,3 +28,32 @@ To set up the project:
 1.  **Clone or download** the project files to your local machine.
 
 2.  **Navigate** to the project directory in your terminal.
+
+## Usage
+
+To start the MeTime application, run the main.py script from your terminal:
+
+python main.py
+
+Upon launching, the application will load any existing habit data and present you with an interactive command-line menu. You can then choose from options like:
+
+* Create a new habit
+
+* Delete an existing habit
+
+* Mark a habit as completed
+
+* View current habits
+
+* Analyze habit performance
+
+* Exit the application
+
+Predefined Habits and Example Data:
+The system is designed to load existing data. For testing and verification, the unit tests programmatically generate sample habit data, including "Yoga", "Breathing Exercise", and "Screen Break", covering periods of four weeks or more to test streak calculations and struggling habit identification. When you first run main.py, it will start with an empty state and save your new habits to habits.json.
+
+## Test
+To run the unit tests and verify the functionality of the habit tracker, use the following command in your terminal from the project root directory:
+
+python -m unittest test_project.py
+
