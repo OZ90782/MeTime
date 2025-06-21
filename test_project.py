@@ -40,7 +40,7 @@ class TestHabitTracker(unittest.TestCase):
         self.assertEqual(self.tracker.habits[0].name, "Read")
 
         with self.assertRaises(ValueError):
-            self.tracker.add_habit("Read", "Read again", "daily")  # Should not be duplicated
+            self.tracker.add_habit("Read", "Read again", "daily")
 
     def test_delete_habit(self):
         """
