@@ -4,23 +4,23 @@ import analytics
 
 class Habit:
     """
-    Repräsentiert einen einzelnen Habit mit seinen Eigenschaften und Methoden.
+    Represents a single habit with its properties and methods.
     """
     def __init__(self, name, description, periodicity, creation_date=None, last_completed=None, completions=None):
         """
-        Initialisiert einen Habit.
+        Initializes a Habit.
 
         Args:
-            name (str): Der Name des Habits.
-            description (str): Eine Beschreibung des Habits.
-            periodicity (str): Die Periodizität des Habits ('daily' oder 'weekly').
-            creation_date (datetime, optional): Das Erstellungsdatum des Habits.
-                                                 Standardmäßig jetzt.
-            last_completed (datetime, optional): Das Datum des letzten Abschlusses.
-                                                  Standardmäßig None.
-            completions (list[datetime], optional): Eine Liste von Zeitstempeln,
-                                                     wann der Habit abgeschlossen wurde.
-                                                     Standardmäßig leer.
+            name (str): The name of the habit.
+            description (str): A description of the habit.
+            periodicity (str): The periodicity of the habit ('daily' or 'weekly').
+            creation_date (datetime, optional): The creation date of the habit.
+                                                 Defaults to now.
+            last_completed (datetime, optional): The date of the last completion.
+                                                  Defaults to None.
+            completions (list[datetime], optional): A list of timestamps
+                                                     when the habit was completed.
+                                                     Defaults to empty.
         """
         self.name = name
         self.description = description
@@ -31,48 +31,48 @@ class Habit:
 
     def mark_completed(self, date=None):
         """
-        Markiert den Habit als abgeschlossen für das angegebene Datum.
-        Wenn kein Datum angegeben ist, wird der aktuelle Zeitpunkt verwendet.
+        Marks the habit as completed for the specified date.
+        If no date is specified, the current time is used.
 
         Args:
-            date (datetime, optional): Das Datum, an dem der Habit abgeschlossen wurde.
-                                       Standardmäßig None (aktueller Zeitpunkt).
+            date (datetime, optional): The date the habit was completed.
+                                       Defaults to None (current time).
         """
         completion_date = date if date else datetime.now()
-        # Verhindere doppelte Einträge für den gleichen Tag/Woche
+        # Prevent duplicate entries for the same day/week
         if self.periodicity == "daily":
             if self.completions and self.completions[-1].date() == completion_date.date():
-                raise ValueError("Habit wurde heute bereits abgeschlossen.")
+                raise ValueError("Habit has already been completed today.")
         elif self.periodicity == "weekly":
-            # Prüfen, ob der Habit in der aktuellen Kalenderwoche bereits abgeschlossen wurde
-            # Kalenderwoche beginnt mit Montag (isocalendar().week)
+            # Check if the habit has already been completed in the current calendar week
+            # Calendar week starts on Monday (isocalendar().week)
             if self.completions and self.completions[-1].isocalendar().week == completion_date.isocalendar().week \
                                 and self.completions[-1].year == completion_date.year:
-                raise ValueError("Habit wurde diese Woche bereits abgeschlossen.")
+                raise ValueError("Habit has already been completed this week.")
         self.completions.append(completion_date)
-        self.completions.sort() # Sicherstellen, dass die Liste immer sortiert ist
+        self.completions.sort() # Ensure the list is always sorted
         self.last_completed = completion_date
 
     def get_current_streak(self):
         """
-        Berechnet die aktuelle Streak (Anzahl der aufeinanderfolgenden Abschlüsse).
+        Calculates the current streak (number of consecutive completions).
 
         Returns:
-            int: Die aktuelle Streak.
+            int: The current streak.
         """
         if not self.completions:
             return 0
 
-        # Berechnet die aktuelle Streak basierend auf der Periodizität
+        # Calculates the current streak based on periodicity
         return analytics.get_current_streak(self, datetime.now())
 
     def get_longest_streak(self):
         """
-        Berechnet die längste Streak (Anzahl der aufeinanderfolgenden Abschlüsse)
-        in der Geschichte des Habits.
+        Calculates the longest streak (number of consecutive completions)
+        in the history of the habit.
 
         Returns:
-            int: Die längste Streak.
+            int: The longest streak.
         """
         if not self.completions:
             return 0
@@ -80,48 +80,47 @@ class Habit:
 
     def was_broken(self, period_start, period_end):
         """
-        Überprüft, ob der Habit in einem bestimmten Zeitraum (definiert durch period_start und period_end)
-        gebrochen wurde.
+        Checks if the habit was broken in a specific period (defined by period_start and period_end).
 
         Args:
-            period_start (datetime): Der Start des Zeitraums.
-            period_end (datetime): Das Ende des Zeitraums.
+            period_start (datetime): The start of the period.
+            period_end (datetime): The end of the period.
 
         Returns:
-            bool: True, wenn der Habit gebrochen wurde, False sonst.
+            bool: True if the habit was broken, False otherwise.
         """
-        # Holen Sie sich alle Abschlussdaten innerhalb des angegebenen Zeitraums
+        # Get all completion dates within the specified period
         completions_in_period = [
             c for c in self.completions if period_start <= c <= period_end
         ]
 
         if self.periodicity == "daily":
-            # Prüfe jeden Tag im Zeitraum
+            # Check each day in the period
             current_date = period_start
             while current_date <= period_end:
                 if not any(c.date() == current_date.date() for c in completions_in_period):
-                    # Wenn an einem Tag im Zeitraum keine Abschluss gefunden wurde
+                    # If no completion was found on a day in the period
                     return True
                 current_date += timedelta(days=1)
             return False
         elif self.periodicity == "weekly":
-            # Prüfe jede Woche im Zeitraum
-            # Finde die erste Woche
-            first_week_start = period_start - timedelta(days=period_start.weekday()) # Montag der Woche
+            # Check each week in the period
+            # Find the first week
+            first_week_start = period_start - timedelta(days=period_start.weekday()) # Monday of the week
             current_week_start = first_week_start
             while current_week_start <= period_end:
-                # Finde das Ende der aktuellen Woche
+                # Find the end of the current week
                 current_week_end = current_week_start + timedelta(days=6)
-                # Prüfe, ob es eine Abschluss in dieser Woche gab
+                # Check if there was a completion in this week
                 if not any(c for c in completions_in_period if current_week_start.date() <= c.date() <= current_week_end.date()):
-                    return True # Habit in dieser Woche gebrochen
+                    return True # Habit broken this week
                 current_week_start += timedelta(weeks=1)
             return False
-        return True # Ungültige Periodizität
+        return True # Invalid periodicity
 
     def to_dict(self):
         """
-        Konvertiert das Habit-Objekt in ein Wörterbuch für die JSON-Serialisierung.
+        Converts the Habit object to a dictionary for JSON serialization.
         """
         return {
             "name": self.name,
@@ -135,7 +134,7 @@ class Habit:
     @classmethod
     def from_dict(cls, data):
         """
-        Erstellt ein Habit-Objekt aus einem Wörterbuch.
+        Creates a Habit object from a dictionary.
         """
         creation_date = datetime.fromisoformat(data["creation_date"])
         last_completed = datetime.fromisoformat(data["last_completed"]) if data["last_completed"] else None
@@ -151,42 +150,42 @@ class Habit:
 
 class HabitTracker:
     """
-    Verwaltet eine Sammlung von Habit-Objekten und deren Persistenz.
+    Manages a collection of Habit objects and their persistence.
     """
     def __init__(self, db_manager):
         """
-        Initialisiert den HabitTracker.
+        Initializes the HabitTracker.
 
         Args:
-            db_manager (DB): Eine Instanz des DB-Managers zum Speichern/Laden.
+            db_manager (DB): An instance of the DB manager for saving/loading.
         """
         self.habits = []
         self.db_manager = db_manager
 
     def add_habit(self, name, description, periodicity):
         """
-        Fügt einen neuen Habit zum Tracker hinzu.
+        Adds a new habit to the tracker.
 
         Args:
-            name (str): Der Name des Habits.
-            description (str): Die Beschreibung des Habits.
-            periodicity (str): Die Periodizität des Habits ('daily' oder 'weekly').
+            name (str): The name of the habit.
+            description (str): The description of the habit.
+            periodicity (str): The periodicity of the habit ('daily' or 'weekly').
         """
         if self.get_habit_by_name(name):
-            raise ValueError(f"Habit mit dem Namen '{name}' existiert bereits.")
+            raise ValueError(f"Habit with the name '{name}' already exists.")
         habit = Habit(name, description, periodicity)
         self.habits.append(habit)
         self.save_to_file()
 
     def delete_habit(self, name):
         """
-        Löscht einen Habit anhand seines Namens.
+        Deletes a habit by its name.
 
         Args:
-            name (str): Der Name des zu löschenden Habits.
+            name (str): The name of the habit to delete.
 
         Returns:
-            bool: True, wenn der Habit gelöscht wurde, False sonst.
+            bool: True if the habit was deleted, False otherwise.
         """
         initial_len = len(self.habits)
         self.habits = [h for h in self.habits if h.name != name]
@@ -197,31 +196,31 @@ class HabitTracker:
 
     def complete_habit(self, name, date=None):
         """
-        Markiert einen Habit als abgeschlossen.
+        Marks a habit as completed.
 
         Args:
-            name (str): Der Name des Habits.
-            date (datetime, optional): Das Datum des Abschlusses. Standardmäßig jetzt.
+            name (str): The name of the habit.
+            date (datetime, optional): The date of completion. Defaults to now.
 
         Raises:
-            ValueError: Wenn der Habit nicht gefunden wird oder bereits abgeschlossen ist.
+            ValueError: If the habit is not found or has already been completed.
         """
         habit = self.get_habit_by_name(name)
         if habit:
             habit.mark_completed(date)
             self.save_to_file()
         else:
-            raise ValueError(f"Habit '{name}' nicht gefunden.")
+            raise ValueError(f"Habit '{name}' not found.")
 
     def get_habit_by_name(self, name):
         """
-        Sucht einen Habit anhand seines Namens.
+        Searches for a habit by its name.
 
         Args:
-            name (str): Der Name des zu suchenden Habits.
+            name (str): The name of the habit to search for.
 
         Returns:
-            Habit or None: Das Habit-Objekt, wenn gefunden, sonst None.
+            Habit or None: The Habit object if found, None otherwise.
         """
         for habit in self.habits:
             if habit.name == name:
@@ -230,62 +229,62 @@ class HabitTracker:
 
     def get_all_habits(self):
         """
-        Gibt eine Liste aller Habits zurück.
+        Returns a list of all habits.
         """
         return self.habits
 
     def get_habits_by_period(self, periodicity):
         """
-        Gibt eine Liste von Habits mit einer bestimmten Periodizität zurück.
+        Returns a list of habits with a specific periodicity.
 
         Args:
-            periodicity (str): Die gewünschte Periodizität ('daily' oder 'weekly').
+            periodicity (str): The desired periodicity ('daily' or 'weekly').
 
         Returns:
-            list[Habit]: Eine Liste von Habit-Objekten.
+            list[Habit]: A list of Habit objects.
         """
         return [h for h in self.habits if h.periodicity == periodicity]
 
     def get_longest_streak_for_habit(self, habit_name):
         """
-        Gibt die längste Streak für einen bestimmten Habit zurück.
+        Returns the longest streak for a specific habit.
 
         Args:
-            habit_name (str): Der Name des Habits.
+            habit_name (str): The name of the habit.
 
         Returns:
-            int: Die längste Streak.
+            int: The longest streak.
         """
         habit = self.get_habit_by_name(habit_name)
         if habit:
             return habit.get_longest_streak()
-        return 0 # Oder Raise Error, je nach gewünschtem Verhalten
+        return 0 # Or raise an error, depending on desired behavior
 
     def get_struggling_habits(self, period_days=30):
         """
-        Gibt eine Liste von Habits zurück, die im letzten Monat am häufigsten verpasst wurden.
-        Diese Funktion nutzt die Analytics-Funktion.
+        Returns a list of habits most frequently missed in the last month.
+        This function uses the Analytics function.
 
         Args:
-            period_days (int): Anzahl der Tage, für die die "struggling habits" ermittelt werden sollen.
+            period_days (int): Number of days for which "struggling habits" should be determined.
 
         Returns:
-            list[str]: Eine Liste der Namen der "struggling habits".
+            list[str]: A list of the names of "struggling habits".
         """
-        # Korrektur: analytics.get_struggling_habits gibt jetzt bereits eine Liste von Namen zurück
+        # Correction: analytics.get_struggling_habits now returns a list of names directly
         return analytics.get_struggling_habits(self.habits, period_days)
 
 
     def save_to_file(self):
         """
-        Speichert alle Habits in der konfigurierten JSON-Datei.
+        Saves all habits to the configured JSON file.
         """
         data = [habit.to_dict() for habit in self.habits]
         self.db_manager.save_data(data)
 
     def load_from_file(self):
         """
-        Lädt Habits aus der konfigurierten JSON-Datei.
+        Loads habits from the configured JSON file.
         """
         data = self.db_manager.load_data()
         self.habits = [Habit.from_dict(d) for d in data]

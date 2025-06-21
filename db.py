@@ -3,49 +3,49 @@ import os
 
 class DB:
     """
-    Verwaltet das Laden und Speichern von Daten in einer JSON-Datei.
+    Manages loading and saving data to a JSON file.
     """
     def __init__(self, file_path):
         """
-        Initialisiert den DB-Manager mit dem Pfad zur JSON-Datei.
+        Initializes the DB manager with the path to the JSON file.
 
         Args:
-            file_path (str): Der Pfad zur JSON-Datei.
+            file_path (str): The path to the JSON file.
         """
         self.file_path = file_path
         self._ensure_file_exists()
 
     def _ensure_file_exists(self):
         """
-        Stellt sicher, dass die JSON-Datei existiert. Wenn nicht, wird sie erstellt.
+        Ensures that the JSON file exists. If not, it is created.
         """
         if not os.path.exists(self.file_path):
             with open(self.file_path, 'w') as f:
-                json.dump([], f) # Erstellt eine leere JSON-Liste
+                json.dump([], f) # Creates an empty JSON list
 
     def load_data(self):
         """
-        Lädt Daten aus der JSON-Datei.
+        Loads data from the JSON file.
 
         Returns:
-            list: Eine Liste der geladenen Daten (Habit-Wörterbücher).
+            list: A list of the loaded data (habit dictionaries).
         """
         try:
             with open(self.file_path, 'r') as f:
                 return json.load(f)
         except json.JSONDecodeError:
-            print(f"Warnung: Die Datei '{self.file_path}' ist leer oder beschädigt. Starte mit leeren Daten.")
+            print(f"Warning: The file '{self.file_path}' is empty or corrupted. Starting with empty data.")
             return []
         except FileNotFoundError:
-            self._ensure_file_exists() # Sollte nicht passieren, aber zur Sicherheit
+            self._ensure_file_exists() # Should not happen, but for safety
             return []
 
     def save_data(self, data):
         """
-        Speichert Daten in der JSON-Datei.
+        Saves data to the JSON file.
 
         Args:
-            data (list): Die zu speichernde Liste von Daten (Habit-Wörterbüchern).
+            data (list): The list of data (habit dictionaries) to save.
         """
         with open(self.file_path, 'w') as f:
             json.dump(data, f, indent=4)

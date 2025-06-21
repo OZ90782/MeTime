@@ -5,25 +5,25 @@ from datetime import datetime
 
 class CLI:
     """
-    Klasse für die Kommandozeilen-Benutzeroberfläche (CLI) des Habit Trackers.
-    Verwaltet die Interaktion mit dem Benutzer und ruft die Funktionen des HabitTrackers auf.
+    Class for the Command Line Interface (CLI) of the Habit Tracker.
+    Manages interaction with the user and calls HabitTracker functions.
     """
     def __init__(self, habit_tracker):
         """
-        Initialisiert die CLI mit einer Instanz des HabitTrackers.
+        Initializes the CLI with an instance of HabitTracker.
         Args:
-            habit_tracker (HabitTracker): Die Instanz des HabitTrackers.
+            habit_tracker (HabitTracker): The HabitTracker instance.
         """
         self.habit_tracker = habit_tracker
 
     def run(self):
         """
-        Startet die Hauptschleife der CLI und zeigt das Menü an.
+        Starts the main CLI loop and displays the menu.
         """
-        print("Willkommen beim Habit Tracker – „MeTime“")
+        print("Welcome to the Habit Tracker – \"MeTime\"")
         while True:
             self._display_menu()
-            choice = input("Wählen Sie eine Option: ")
+            choice = input("Select an option: ")
             if choice == '1':
                 self.prompt_create_habit()
             elif choice == '2':
@@ -35,142 +35,142 @@ class CLI:
             elif choice == '5':
                 self.prompt_analysis()
             elif choice == '6':
-                print("Auf Wiedersehen!")
+                print("Goodbye!")
                 break
             else:
-                print("Ungültige Eingabe. Bitte versuchen Sie es erneut.")
+                print("Invalid input. Please try again.")
 
     def _display_menu(self):
         """
-        Zeigt das Hauptmenü der CLI an.
+        Displays the main CLI menu.
         """
-        print("\n--- Menü ---")
-        print("1. Neuen Habit erstellen")
-        print("2. Bestehenden Habit löschen")
-        print("3. Habit als abgeschlossen markieren")
-        print("4. Aktuelle Habits anzeigen")
-        print("5. Habit-Performance analysieren")
-        print("6. Beenden")
+        print("\n--- Menu ---")
+        print("1. Create a new habit")
+        print("2. Delete an existing habit")
+        print("3. Mark a habit as completed")
+        print("4. View current habits")
+        print("5. Analyze habit performance")
+        print("6. Exit")
 
     def prompt_create_habit(self):
         """
-        Fordert den Benutzer zur Eingabe von Informationen für einen neuen Habit auf
-        und erstellt diesen.
+        Prompts the user for information to create a new habit
+        and creates it.
         """
-        name = input("Name des Habits: ").strip()
+        name = input("Habit Name: ").strip()
         if not name:
-            print("Habit-Name darf nicht leer sein.")
+            print("Habit name cannot be empty.")
             return
-        description = input("Beschreibung des Habits: ").strip()
-        periodicity = input("Periodizität (daily/weekly): ").strip().lower()
+        description = input("Habit Description: ").strip()
+        periodicity = input("Periodicity (daily/weekly): ").strip().lower()
         if periodicity not in ["daily", "weekly"]:
-            print("Ungültige Periodizität. Bitte 'daily' oder 'weekly' eingeben.")
+            print("Invalid periodicity. Please enter 'daily' or 'weekly'.")
             return
         self.habit_tracker.add_habit(name, description, periodicity)
-        print(f"Habit '{name}' erfolgreich erstellt.")
+        print(f"Habit '{name}' successfully created.")
 
     def prompt_delete_habit(self):
         """
-        Fordert den Benutzer zur Eingabe des Namens eines zu löschenden Habits auf
-        und löscht diesen.
+        Prompts the user for the name of a habit to delete
+        and deletes it.
         """
-        name = input("Name des zu löschenden Habits: ").strip()
+        name = input("Name of the habit to delete: ").strip()
         if not name:
-            print("Habit-Name darf nicht leer sein.")
+            print("Habit name cannot be empty.")
             return
         if self.habit_tracker.delete_habit(name):
-            print(f"Habit '{name}' erfolgreich gelöscht.")
+            print(f"Habit '{name}' successfully deleted.")
         else:
-            print(f"Habit '{name}' nicht gefunden.")
+            print(f"Habit '{name}' not found.")
 
     def prompt_mark_completed(self):
         """
-        Fordert den Benutzer zur Eingabe des Namens eines abzuschließenden Habits auf
-        und markiert diesen als abgeschlossen.
+        Prompts the user for the name of a habit to mark as completed
+        and marks it as completed.
         """
-        name = input("Name des als abgeschlossen zu markierenden Habits: ").strip()
+        name = input("Name of the habit to mark as completed: ").strip()
         if not name:
-            print("Habit-Name darf nicht leer sein.")
+            print("Habit name cannot be empty.")
             return
         try:
             self.habit_tracker.complete_habit(name)
-            print(f"Habit '{name}' als abgeschlossen markiert.")
+            print(f"Habit '{name}' marked as completed.")
         except ValueError as e:
-            print(f"Fehler: {e}")
+            print(f"Error: {e}")
 
     def prompt_view_current_habits(self):
         """
-        Zeigt alle aktuellen Habits des Benutzers an.
+        Displays all current habits of the user.
         """
         habits = self.habit_tracker.get_all_habits()
         if not habits:
-            print("Keine Habits vorhanden.")
+            print("No habits found.")
             return
-        print("\n--- Aktuelle Habits ---")
+        print("\n--- Current Habits ---")
         for habit in habits:
             print(f"Name: {habit.name}")
-            print(f"  Beschreibung: {habit.description}")
-            print(f"  Periodizität: {habit.periodicity}")
-            print(f"  Aktuelle Streak: {habit.get_current_streak()}")
-            print(f"  Längste Streak: {habit.get_longest_streak()}")
+            print(f"  Description: {habit.description}")
+            print(f"  Periodicity: {habit.periodicity}")
+            print(f"  Current Streak: {habit.get_current_streak()}")
+            print(f"  Longest Streak: {habit.get_longest_streak()}")
             if habit.completions:
-                print(f"  Letzte Abschlusszeit: {habit.completions[-1].strftime('%Y-%m-%d %H:%M:%S')}")
+                print(f"  Last Completion Time: {habit.completions[-1].strftime('%Y-%m-%d %H:%M:%S')}")
             else:
-                print("  Noch nicht abgeschlossen.")
+                print("  Not completed yet.")
             print("-" * 20)
 
     def prompt_analysis(self):
         """
-        Bietet verschiedene Analyseoptionen für die Habit-Performance an.
+        Offers various analysis options for habit performance.
         """
-        print("\n--- Habit-Analyse ---")
-        print("1. Habits nach Periodizität anzeigen")
-        print("2. Längste Streak eines Habits anzeigen")
-        print("3. Habits anzeigen, die im letzten Monat am häufigsten verpasst wurden")
-        analysis_choice = input("Wählen Sie eine Analyse-Option: ")
+        print("\n--- Habit Analysis ---")
+        print("1. Show habits by periodicity")
+        print("2. Show longest streak of a habit")
+        print("3. Show habits most frequently missed in the last month")
+        analysis_choice = input("Select an analysis option: ")
 
         if analysis_choice == '1':
-            period = input("Periodizität (daily/weekly): ").strip().lower()
+            period = input("Periodicity (daily/weekly): ").strip().lower()
             if period not in ["daily", "weekly"]:
-                print("Ungültige Periodizität. Bitte 'daily' oder 'weekly' eingeben.")
+                print("Invalid periodicity. Please enter 'daily' or 'weekly'.")
                 return
             habits_by_period = self.habit_tracker.get_habits_by_period(period)
             if habits_by_period:
-                print(f"\n--- Habits mit Periodizität '{period}' ---")
+                print(f"\n--- Habits with Periodicity '{period}' ---")
                 for habit in habits_by_period:
                     print(f"- {habit.name} (Streak: {habit.get_current_streak()})")
             else:
-                print(f"Keine Habits mit Periodizität '{period}' gefunden.")
+                print(f"No habits with periodicity '{period}' found.")
         elif analysis_choice == '2':
-            name = input("Name des Habits für die längste Streak: ").strip()
+            name = input("Name of the habit for the longest streak: ").strip()
             if not name:
-                print("Habit-Name darf nicht leer sein.")
+                print("Habit name cannot be empty.")
                 return
             habit = self.habit_tracker.get_habit_by_name(name)
             if habit:
                 longest_streak = habit.get_longest_streak()
-                print(f"Die längste Streak für '{name}' ist: {longest_streak} Tage.")
+                print(f"The longest streak for '{name}' is: {longest_streak} days.")
             else:
-                print(f"Habit '{name}' nicht gefunden.")
+                print(f"Habit '{name}' not found.")
         elif analysis_choice == '3':
             struggling_habits = self.habit_tracker.get_struggling_habits()
             if struggling_habits:
-                print("\n--- Habits, die im letzten Monat am häufigsten verpasst wurden ---")
+                print("\n--- Habits Most Frequently Missed in the Last Month ---")
                 for habit_name in struggling_habits:
                     print(f"- {habit_name}")
             else:
-                print("Keine Habits wurden im letzten Monat verpasst oder es sind keine Daten vorhanden.")
+                print("No habits were missed in the last month or no data available.")
         else:
-            print("Ungültige Auswahl für Analyse-Option.")
+            print("Invalid selection for analysis option.")
 
 
 if __name__ == "__main__":
-    # Pfad zur JSON-Datei, in der die Habits gespeichert werden
+    # Path to the JSON file where habits will be stored
     DATA_FILE = "habits.json"
     db_manager = DB(DATA_FILE)
     habit_tracker_instance = HabitTracker(db_manager)
 
-    # Lade vorhandene Daten beim Start
+    # Load existing data on startup
     habit_tracker_instance.load_from_file()
 
     cli = CLI(habit_tracker_instance)
