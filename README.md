@@ -53,7 +53,7 @@ Upon launching, the application will load any existing habit data and present yo
 
 * Exit the application
 
-Predefined Habits and Example Data:
+**Predefined Habits and Example Data:**
 The system is designed to load existing data from habits.json. You can pre-populate this file with the following 5 habits to get started quickly and have initial data for testing streak calculations over periods of four weeks or more. Alternatively, you can create new habits directly through the CLI.
 For comprehensive testing and verification, the unit tests programmatically generate sample habit data, including "Yoga", "Breathing Exercise", and "Screen Break", covering periods of four weeks or more to test streak calculations and struggling habit identification.
 
