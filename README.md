@@ -28,13 +28,16 @@ To set up the project:
 1.  **Clone or download** the project files to your local machine.
 
 2.  **Navigate** to the project directory in your terminal.
-
+```
+# Example: If you download a zip and extract it
+cd /path/to/your/MeTime/project
+```
 ## Usage
 
 To start the MeTime application, run the main.py script from your terminal:
-
+```
 python main.py
-
+```
 Upon launching, the application will load any existing habit data and present you with an interactive command-line menu. You can then choose from options like:
 
 * Create a new habit
@@ -54,6 +57,6 @@ The system is designed to load existing data. For testing and verification, the 
 
 ## Test
 To run the unit tests and verify the functionality of the habit tracker, use the following command in your terminal from the project root directory:
-
+```
 python -m unittest test_project.py
-
+```
