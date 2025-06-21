@@ -54,7 +54,8 @@ Upon launching, the application will load any existing habit data and present yo
 * Exit the application
 
 Predefined Habits and Example Data:
-The system is designed to load existing data. For testing and verification, the unit tests programmatically generate sample habit data, including "Yoga", "Breathing Exercise", and "Screen Break", covering periods of four weeks or more to test streak calculations and struggling habit identification. When you first run main.py, it will start with an empty state and save your new habits to habits.json.
+The system is designed to load existing data from habits.json. You can pre-populate this file with the following 5 habits to get started quickly and have initial data for testing streak calculations over periods of four weeks or more. Alternatively, you can create new habits directly through the CLI.
+For comprehensive testing and verification, the unit tests programmatically generate sample habit data, including "Yoga", "Breathing Exercise", and "Screen Break", covering periods of four weeks or more to test streak calculations and struggling habit identification.
 
 ## Test
 To run the unit tests and verify the functionality of the habit tracker, use the following command in your terminal from the project root directory:
