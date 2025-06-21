@@ -134,7 +134,7 @@ class Habit:
     @classmethod
     def from_dict(cls, data):
         """
-        Creates a Habit object from a dictionary.
+        Creates a habit object from a dictionary.
         """
         creation_date = datetime.fromisoformat(data["creation_date"])
         last_completed = datetime.fromisoformat(data["last_completed"]) if data["last_completed"] else None
@@ -150,7 +150,7 @@ class Habit:
 
 class HabitTracker:
     """
-    Manages a collection of Habit objects and their persistence.
+    Manages a collection of habit objects and their persistence.
     """
     def __init__(self, db_manager):
         """

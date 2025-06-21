@@ -42,7 +42,7 @@ class DB:
 
     def save_data(self, data):
         """
-        Saves data to the JSON file.
+        Saves data to JSON file.
 
         Args:
             data (list): The list of data (habit dictionaries) to save.

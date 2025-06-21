@@ -165,7 +165,7 @@ class CLI:
 
 
 if __name__ == "__main__":
-    # Path to the JSON file where habits will be stored
+    # Path to the JSON file where habits are stored
     DATA_FILE = "habits.json"
     db_manager = DB(DATA_FILE)
     habit_tracker_instance = HabitTracker(db_manager)

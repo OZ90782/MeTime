@@ -38,6 +38,7 @@ To start the MeTime application, run the main.py script from your terminal:
 ```
 python main.py
 ```
+
 Upon launching, the application will load any existing habit data and present you with an interactive command-line menu. You can then choose from options like:
 
 * Create a new habit

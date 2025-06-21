@@ -13,7 +13,7 @@ class TestHabitTracker(unittest.TestCase):
 
     def setUp(self):
         """
-        Sets up the test environment for each test.
+        Sets up test environment for each test.
         Creates a temporary database file.
         """
         self.test_db_file = "test_habits.json"

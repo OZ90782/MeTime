@@ -131,7 +131,7 @@ def get_current_streak(habit, today):
 
 def get_struggling_habits(habits, period_days):
     """
-    Determines the habits that were most frequently missed in the specified period.
+    Determines habits that were most frequently missed in the specified period.
 
     Args:
         habits (list[Habit]): A list of Habit objects.
